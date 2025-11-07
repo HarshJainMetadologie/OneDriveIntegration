@@ -9,14 +9,6 @@ public class EmployeeControllerQueueable implements Queueable, Database.AllowsCa
 
         for (Employee__c emp : employees) {
             try {
-                List<ContentDocumentLink> links = [SELECT ContentDocumentId FROM ContentDocumentLink WHERE LinkedEntityId = :emp.Id ORDER BY SystemModstamp DESC LIMIT 1];
-
-                String imageUrl = null;
-                if (!links.isEmpty()) {
-                    ContentVersion ver = [SELECT Id FROM ContentVersion WHERE ContentDocumentId = :links[0].ContentDocumentId ORDER BY VersionNumber DESC LIMIT 1];
-                    imageUrl = '/sfc/servlet.shepherd/version/download/' + ver.Id;
-                }
-
                 PageReference pageRef = Page.employeeCard;
                 pageRef.getParameters().put('id', emp.Id);
                 Blob pdfBlob = pageRef.getContentAsPDF();
