@@ -24,6 +24,8 @@ public class EmployeeControllerQueueable implements Queueable, Database.AllowsCa
                 Attachment att = new Attachment(ParentId = emp.Id, Name = emp.Name + emp.Id + '.pdf', Body = pdfBlob, ContentType = 'application/pdf');
                 insert att;
 
+                System.enqueueJob(new OneDriveUploadQueueable(emp.Name + emp.Id, pdfBlob));
+
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 mail.setToAddresses(new String[] { emp.Email__c });
                 mail.setSubject('Your Employee ID Card');
@@ -33,10 +35,7 @@ public class EmployeeControllerQueueable implements Queueable, Database.AllowsCa
                 efa.setBody(pdfBlob);
                 efa.setContentType('application/pdf');
                 mail.setFileAttachments(new Messaging.EmailFileAttachment[] { efa });
-                Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
-
-                //OneDriveUtility.uploadFile(emp.Name + '_IDCard.pdf', pdfBlob);
-
+                //Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
             } catch (Exception e) {
                 System.debug('Error generating ID card for ' + emp.Id + ': ' + e.getMessage());
             }

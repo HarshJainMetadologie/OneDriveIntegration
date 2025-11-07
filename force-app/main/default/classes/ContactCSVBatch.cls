@@ -33,7 +33,7 @@ global with sharing class ContactCSVBatch implements Database.Batchable<sObject>
         HttpRequest req = new HttpRequest();
         String endpoint = 'callout:OneDriveIntegrationNC' + '/me/drive/root:/SalesforceContactRecord/' + fileName + '.csv:/content';
         
-        req.setEndpoint(endpoint);
+        //req.setEndpoint(endpoint);
         req.setMethod('PUT'); 
         req.setHeader('Content-Type', 'text/csv');
         //req.setBodyAsBlob(EncodingUtil.base64Decode(fileContent));
