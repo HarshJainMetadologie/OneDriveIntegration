@@ -1,7 +1,7 @@
 public with sharing class uploadOneDrive {
-    public static void uploadFile(String fileName, Blob fileBody) {
+    public static void uploadFile(String fileName, Blob fileBody, String folderName) {
         try {
-            String endpoint = 'callout:OneDriveIntegrationNC'+'/me/drive/root:/EmployeeDetails/' + fileName + '.pdf:/content';
+            String endpoint = 'callout:OneDriveIntegrationNC'+'/me/drive/root:/'+folderName+'/' + fileName + '.pdf:/content';
 
             HttpRequest req = new HttpRequest();
             req.setEndpoint(endpoint);

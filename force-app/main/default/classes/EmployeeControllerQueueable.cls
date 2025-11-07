@@ -16,10 +16,10 @@ public class EmployeeControllerQueueable implements Queueable, Database.AllowsCa
                 Attachment att = new Attachment(ParentId = emp.Id, Name = emp.Name + emp.Id + '.pdf', Body = pdfBlob, ContentType = 'application/pdf');
                 insert att;
 
-                System.enqueueJob(new OneDriveUploadQueueable(emp.Name + emp.Id, pdfBlob));
+                System.enqueueJob(new OneDriveUploadQueueable(emp.Name + emp.Id, pdfBlob,'EmployeeDetails'));
 
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-                mail.setToAddresses(new String[] { emp.Email__c });
+                mail.setToAddresses(new String[] { emp.Email__c }); 
                 mail.setSubject('Your Employee ID Card');
                 mail.setPlainTextBody('Dear ' + emp.Name + ',\n\nPlease find attached your ID card.');
                 Messaging.EmailFileAttachment efa = new Messaging.EmailFileAttachment();
