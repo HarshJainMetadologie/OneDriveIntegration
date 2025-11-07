@@ -35,7 +35,7 @@ public class EmployeeControllerQueueable implements Queueable, Database.AllowsCa
                 efa.setBody(pdfBlob);
                 efa.setContentType('application/pdf');
                 mail.setFileAttachments(new Messaging.EmailFileAttachment[] { efa });
-                //Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+                Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
             } catch (Exception e) {
                 System.debug('Error generating ID card for ' + emp.Id + ': ' + e.getMessage());
             }
