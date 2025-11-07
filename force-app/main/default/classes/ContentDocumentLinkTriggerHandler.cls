@@ -4,8 +4,7 @@ public with sharing class ContentDocumentLinkTriggerHandler {
         Set<Id> employeeIds = new Set<Id>();
 
         for (ContentDocumentLink cdl : newList) {
-            if (cdl.LinkedEntityId != null &&
-                cdl.LinkedEntityId.getSObjectType() == Employee__c.SObjectType) {
+            if (cdl.LinkedEntityId != null && cdl.LinkedEntityId.getSObjectType() == Employee__c.SObjectType) {
                 employeeIds.add(cdl.LinkedEntityId);
             }
         }

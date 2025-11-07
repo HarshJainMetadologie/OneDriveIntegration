@@ -1,34 +1,60 @@
 public class EmployeePDFGenerator implements Queueable, Database.AllowsCallouts {
     private List<Id> empIds;
-    public EmployeePDFGenerator(List<Id> ids){
-         this.empIds = ids; 
-        }
+    public EmployeePDFGenerator(List<Id> ids) {
+        this.empIds = ids;
+    }
 
-    public void execute(QueueableContext ctx){
-        for (Id empId : empIds) {
+    public void execute(QueueableContext qc) {
+        List<Employee__c> employees = [
+            SELECT Id, Name, Email__c, Title__c, Phone_Number__c, Address__c,
+                   Blood_Group__c, Date_Of_Birth__c
+            FROM Employee__c WHERE Id IN :empIds
+        ];
+
+        for (Employee__c emp : employees) {
             try {
-                Employee__c emp = [SELECT Id, Name, Title__c, Email__c, Phone_Number__c, Address__c, Blood_Group__c, Date_Of_Birth__c FROM Employee__c WHERE Id = :empId];
+                List<ContentDocumentLink> links = [
+                    SELECT ContentDocumentId
+                    FROM ContentDocumentLink
+                    WHERE LinkedEntityId = :emp.Id
+                    ORDER BY SystemModstamp DESC LIMIT 1
+                ];
 
-                PageReference pr = Page.employeeCard;
-                pr.getParameters().put('id', emp.Id);
-                Blob pdfBlob = pr.getContentAsPDF(); 
+                String imageUrl;
+                if (!links.isEmpty()) {
+                    ContentVersion ver = [
+                        SELECT Id FROM ContentVersion
+                        WHERE ContentDocumentId = :links[0].ContentDocumentId
+                        ORDER BY VersionNumber DESC LIMIT 1
+                    ];
+                    imageUrl = '/sfc/servlet.shepherd/version/download/' + ver.Id;
+                }
 
-                Attachment att = new Attachment(ParentId = emp.Id, Name = emp.Name + emp.Id, Body = pdfBlob, ContentType = 'application/pdf');
+                PageReference pageRef = Page.employeeCard;
+                pageRef.getParameters().put('id', emp.Id);
+                Blob pdfBlob = pageRef.getContentAsPDF();
+
+                Attachment att = new Attachment(
+                    ParentId = emp.Id,
+                    Name = emp.Name + emp.Id+ '.pdf',
+                    Body = pdfBlob,
+                    ContentType = 'application/pdf'
+                );
                 insert att;
 
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 mail.setToAddresses(new String[] { emp.Email__c });
-                mail.setSubject('Your Employee ID Card');   
-                mail.setPlainTextBody('Dear ' + emp.Name + ',\n\nAttached is your ID Card.');
+                mail.setSubject('Your Employee ID Card');
+                mail.setPlainTextBody('Dear ' + emp.Name + ',\n\nPlease find your ID Card attached.');
                 Messaging.EmailFileAttachment efa = new Messaging.EmailFileAttachment();
-                efa.setFileName(emp.Name + emp.Id);
+                efa.setFileName(emp.Name + emp.Id + '.pdf');
                 efa.setBody(pdfBlob);
                 efa.setContentType('application/pdf');
                 mail.setFileAttachments(new Messaging.EmailFileAttachment[] { efa });
                 Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
 
-            } catch(Exception ex) {
-                System.debug('PDF generation failed for ' + empId + ': ' + ex);
+            } catch (Exception e) {
+                System.debug('Error generating/sending ID card for ' + emp.Id + ': ' + e.getMessage());
             }
         }
     }
