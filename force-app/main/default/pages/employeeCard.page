@@ -13,7 +13,13 @@
         <p><b>Phone:</b> {!Employee__c.Phone_Number__c}</p>
         <p><b>Address:</b> {!Employee__c.Address__c}</p>
         <p><b>Blood Group:</b> {!Employee__c.Blood_Group__c}</p>
-        <p><b>DOB:</b> {!Employee__c.Date_Of_Birth__c}</p>
+        <!-- <p><b>DOB:</b> {!Employee__c.Date_Of_Birth__c}</p> -->
+        <p>
+            <b>DOB:</b>
+            <apex:outputText value="{0,date,dd/MM/yyyy}">
+                <apex:param value="{!Employee__c.Date_Of_Birth__c}" />
+            </apex:outputText>
+        </p>
     </div>
 
 </apex:page>
